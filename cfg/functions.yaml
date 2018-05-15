@@ -1,0 +1,67 @@
+functions:
+  f_sqrt:
+    - sqrt.(abs.(x))
+  f_squared:
+    - x.^2
+  f_ypow:
+    - abs(x)^abs(y)
+    - abs.(x).^abs.(y)
+    - abs.(x).^abs.(y)
+    - .^(eqsize(abs.(x),abs.(y),c)...)
+  f_expx:
+    - (exp.(x)-1.0)/(exp(1.0)-1.0)
+  f_sinx:
+    - sin.(x)
+  f_cosx:
+    - cos.(x)
+  f_sqrtxy:
+    - sqrt.(x*x+y*y)/sqrt(2.0)
+    - sqrt.(x*x+y.*y)/sqrt(2.0)
+    - sqrt.(x.*x+y*y)/sqrt(2.0)
+    - sqrt.(.+(eqsize(x.*x, y.*y, c)...))/sqrt(2.0)
+  f_sum:
+    - scaled(x+y)
+    - scaled(x.+y)
+    - scaled(x.+y)
+    - scaled(.+(eqsize(x,y,c)...))
+  f_minus:
+    - scaled(x-y)
+    - scaled((x.-y))
+    - scaled((x.-y))
+    - scaled(.-(eqsize(x,y,c)...))
+  f_mult:
+    - x*y
+    - x.*y
+    - x.*y
+    - ".*(eqsize(x,y,c)...)"
+  f_div:
+    - scaled(x/y)
+    - scaled(x./y)
+    - scaled(x./y)
+    - "./(eqsize(x,y,c)...)"
+  f_gt:
+    - Float64(x > y)
+    - Float64.(x.>y)
+    - Float64.(x.>y)
+    - Float64.(.>(eqsize(x,y,c)...))
+  f_gte:
+    - Float64(x >= y)
+    - Float64.(x.>=y)
+    - Float64.(x.>=y)
+    - Float64.(.>=(eqsize(x,y,c)...))
+  f_const:
+    - c
+  f_min:
+    - min(x,y)
+    - min.(x,y)
+    - min.(x,y)
+    - min.(eqsize(x, y, c)...)
+  f_max:
+    - max(x,y)
+    - max.(x,y)
+    - max.(x,y)
+    - max.(eqsize(x, y, c)...)
+  f_round:
+    - round.(x)
+  f_floor:
+    - floor.(x)

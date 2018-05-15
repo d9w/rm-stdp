@@ -1,0 +1,28 @@
+include("../graph_utils.jl")
+
+function lif_graph(vstart::Float64, vthresh::Float64)
+    nin = 5; nout = 5
+    mg = get_graph(nin, nout, 20)
+    add_node!(mg, nin+1, CGP.Config.f_const, p=vthresh)
+    add_node!(mg, nin+2, CGP.Config.f_const, p=0.8)
+    add_node!(mg, nin+3, CGP.Config.f_const, p=vstart)
+    add_node!(mg, nin+4, CGP.Config.f_const, p=-0.05)
+    add_node!(mg, nin+5, CGP.Config.f_const, p=1.0)
+    add_node!(mg, nin+6, CGP.Config.f_gte, x=1, y=nin+1)
+    add_node!(mg, nin+7, CGP.Config.f_gt, x=nin+2, y=2)
+    add_node!(mg, nin+8, CGP.Config.f_mult, x=nin+6, y=nin+7)
+    add_node!(mg, nin+9, CGP.Config.f_minus, x=nin+5, y=nin+8)
+    add_node!(mg, nin+10, CGP.Config.f_minus, x=nin+3, y=1)
+    add_node!(mg, nin+11, CGP.Config.f_mult, x=nin+4, y=1)
+    add_node!(mg, nin+12, CGP.Config.f_mult, x=nin+10, y=nin+8)
+    add_node!(mg, nin+13, CGP.Config.f_sum, x=nin+11, y=5)
+    add_node!(mg, nin+14, CGP.Config.f_mult, x=nin+13, y=nin+9)
+    add_node!(mg, nin+15, CGP.Config.f_sum, x=nin+14, y=nin+12)
+    add_node!(mg, nin+16, CGP.Config.f_minus, x=nin+5, y=2)
+    add_node!(mg, nin+17, CGP.Config.f_mult, x=nin+4, y=2)
+    add_node!(mg, nin+18, CGP.Config.f_mult, x=nin+16, y=nin+8)
+    add_node!(mg, nin+19, CGP.Config.f_mult, x=nin+17, y=nin+9)
+    add_node!(mg, nin+20, CGP.Config.f_sum, x=nin+18, y=nin+19)
+    set_outputs!(mg, nin, nout, 20, nin.+[15, 20, rand(1:20), rand(1:20), 8])
+    mg
+end

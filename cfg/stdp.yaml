@@ -1,0 +1,10 @@
+train_epochs: 2
+weight_mean: 0.2
+weight_std: 0.3
+t_train: 350
+t_blank: 100
+fr: 55.0
+pre_target: 0.8
+stdp_lr: 0.0005
+stdp_mu: 1.0
+inhib_weight: 0.1
