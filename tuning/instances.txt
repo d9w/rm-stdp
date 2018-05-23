@@ -1,9 +1,1 @@
-../experiments/run_cluster.jl --problem iris --fname lif
-../experiments/run_cluster.jl --problem iris --fname izhikevich
-../experiments/run_cluster.jl --problem iris --fname fhn
-../experiments/run_cluster.jl --problem yeast --fname lif
-../experiments/run_cluster.jl --problem yeast --fname izhikevich
-../experiments/run_cluster.jl --problem yeast --fname fhn
-../experiments/run_cluster.jl --problem spirals --fname lif
-../experiments/run_cluster.jl --problem spirals --fname izhikevich
-../experiments/run_cluster.jl --problem spirals --fname fhn
+../instrumental.jl --cfg ../cfg/default.yaml

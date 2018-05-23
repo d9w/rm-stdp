@@ -9,4 +9,3 @@
 ## then the configuration is discarded.
 ##
 ## Examples of valid logical operators are: ==  !=  >=  <=  >  <  &  |  !  %in%
-t_blank > t_train

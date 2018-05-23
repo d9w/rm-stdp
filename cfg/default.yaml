@@ -1,10 +1,10 @@
 vreset: -65 # mV
-vinput: 10 # mV
+vinput: 15 # mV
 vthresh: -50 # mV
 eleak: -70 # mV
 eexc: 0 # mV
 einh: -80 # mV
-thalamic: 1.0 # mV
+thalamic: 5.0 # mV
 connectivity: 0.1
 tm: 20 # ms
 te: 3 # ms

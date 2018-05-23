@@ -9,12 +9,10 @@ struct Network
     outputs::BitArray
     da::Array{Float64}
     cfg::Dict
-    rng::MersenneTwister
 end
 
 function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
-                 cfg::Dict; rng::MersenneTwister=MersenneTwister(0),
-                 n_exc::Int64 = Int64(round(0.8 * n_neurons)))
+                 cfg::Dict; n_exc::Int64 = Int64(round(0.8 * n_neurons)))
     # starting membrane threshold for all neurons
     neurons = zeros(n_neurons, 1)
     neurons[:, 1] = cfg["vreset"]
@@ -26,7 +24,7 @@ function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
     weights = rand(n_neurons, n_neurons)
     weights[.~(excitatory), :] = 1.0
     weights .*= (1.0 - eye(n_neurons, n_neurons))
-    weights .*= (rand(rng, n_neurons, n_neurons) .< cfg["connectivity"])
+    weights .*= (rand(n_neurons, n_neurons) .< cfg["connectivity"])
     # set input neurons
     inputs = falses(n_neurons)
     inds = shuffle(find(excitatory))
@@ -40,13 +38,16 @@ function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
     gi = zeros(n_neurons, n_neurons)
     da = [0.0]
     Network(neurons, weights, ge, gi, trace, excitatory, inputs, outputs,
-            da, cfg, rng)
+            da, cfg)
 end
 
-function spike!(n::Network, input_spikes::BitArray)
-    # problem input
+function input!(n::Network, input_spikes::BitArray)
     inds = find(n.inputs)[find(input_spikes)]
     n.neurons[inds, 1] .+= n.cfg["vinput"]
+    nothing
+end
+
+function spike!(n::Network)
     # calculate spikes, reset spiked pre-synaptic membranes
     spikes = n.neurons[:, 1] .>= n.cfg["vthresh"]
     n.neurons[spikes, 1] .= n.cfg["vreset"]
@@ -59,7 +60,7 @@ function spike!(n::Network, input_spikes::BitArray)
     v = n.neurons[:, 1]
     dv = ((n.cfg["eleak"] - v) + (sum(n.ge, 1)' .* (n.cfg["eexc"] - v))
           + (sum(n.gi, 1)' .* (n.cfg["einh"] - v))
-          + n.cfg["thalamic"] * randn(n.rng, size(v))) / n.cfg["tm"]
+          + n.cfg["thalamic"] * randn(size(v))) / n.cfg["tm"]
     n.neurons[:, 1] .+= dv[:]
     n.ge .-= n.ge / n.cfg["te"]
     n.gi .-= n.gi / n.cfg["ti"]
@@ -68,18 +69,27 @@ end
 
 function learn!(n::Network, spikes::BitArray)
     n.trace[spikes, :] .+= 1
-    dw = (n.cfg["lr"] * n.da[1] * (n.trace[:, spikes] - n.cfg["target"]) .*
-          (n.cfg["wmax"] - n.weights[:, spikes]).^n.cfg["mu"])
-    n.weights[:, spikes] .+= dw
     n.trace .-= (n.trace / n.cfg["tt"])
-    n.da .*= (1.0 - n.cfg["dopamine_absorption"])
+    if n.da[1] > 0.0
+        dw = (n.cfg["lr"] * n.da[1] * (n.trace[:, spikes] - n.cfg["target"]) .*
+              (n.cfg["wmax"] - n.weights[:, spikes]).^n.cfg["mu"])
+        n.weights[:, spikes] .+= dw
+        n.weights[n.weights .> n.cfg["wmax"]] .= n.cfg["wmax"]
+        n.da .*= (1.0 - n.cfg["dopamine_absorption"])
+    end
     nothing
 end
 
-function step!(n::Network, input_spikes::BitArray, train::Bool)
-    spikes = spike!(n, input_spikes)
+function step!(n::Network, train::Bool=true)
+    spikes = spike!(n)
     if train
         learn!(n, spikes)
     end
     spikes[n.outputs]
 end
+
+function step!(n::Network, input_spikes::BitArray, train::Bool=true)
+    input!(n, input_spikes)
+    step!(n, train)
+end
+
