@@ -1,0 +1,17 @@
+vreset: -65 # mV
+vinput: 10 # mV
+vthresh: -50 # mV
+eleak: -70 # mV
+eexc: 0 # mV
+einh: -80 # mV
+thalamic: 1.0 # mV
+connectivity: 0.1
+tm: 20 # ms
+te: 3 # ms
+ti: 5 # ms
+tt: 20 # ms
+lr: 0.001
+target: 0.1
+wmax: 1.0
+mu: 0.4
+dopamine_absorption: 0.005
