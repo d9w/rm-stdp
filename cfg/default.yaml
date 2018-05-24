@@ -13,8 +13,8 @@ te: 3.0 # ms
 ti: 5.0 # ms
 tt: 20.0 # ms
 ttheta: 1000.0 # ms
+tdop: 200.0 # ms
 lr: 0.001
 target: 0.1
 wmax: 4.0
 mu: 0.4
-dopamine_absorption: 0.005

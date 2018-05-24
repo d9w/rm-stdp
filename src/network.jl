@@ -60,7 +60,7 @@ function spike!(n::Network)
     spikes[n.exc] .&= (n.neurons[n.exc, 3] .> n.cfg["refrac_e"])
     spikes[n.inh] .&= (n.neurons[n.inh, 3] .> n.cfg["refrac_i"])
     n.neurons[spikes, 1] .= n.cfg["vreset"]
-    n.neurons[spikes, 2] .+= n.cfg["theta_plus"]
+    n.neurons[spikes, 2] .+= exp(-n.cfg["theta_plus"])
     n.neurons[spikes, 3] .= 0.0
     # calculate conductance
     espikes = spikes .& n.exc
@@ -86,12 +86,12 @@ function learn!(n::Network, spikes::BitArray)
     n.trace[spikes, :] .+= 1
     n.trace .-= (n.trace / n.cfg["tt"])
     if n.da[1] > 0.0
-        dw = (n.cfg["lr"] * n.da[1] * (n.trace[n.exc, spikes] - n.cfg["target"]) .*
+        dw = (exp(-n.cfg["lr"]) * n.da[1] * (n.trace[n.exc, spikes] - n.cfg["target"]) .*
               (n.cfg["wmax"] - n.weights[n.exc, spikes]).^n.cfg["mu"])
         n.weights[n.exc, spikes] .+= dw
         n.weights[n.weights .> n.cfg["wmax"]] .= n.cfg["wmax"]
         n.weights .*= n.connections
-        n.da .*= (1.0 - n.cfg["dopamine_absorption"])
+        n.da .-= n.da / n.cfg["tdop"]
     end
     nothing
 end

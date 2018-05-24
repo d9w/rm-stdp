@@ -1,6 +1,10 @@
 # name		    switch                    type	    values			[conditions (using R syntax)]
 vinput        "--vinput "               i         (10, 15)
-thalamic      "--thalamic "             i         (0, 10)
 connectivity  "--connectivity "         r         (0.05 0.3)
-lr            "--lr "                   c         (0.0001, 0.001, 0.01, 0.1)
-target        "--target "               r         (0.0, 1.0)
+theta_plus    "--theta_plus "           i         (0, 10)
+refrac_e      "--refrac_e "             i         (2, 15)
+refrac_i      "--refrac_i "             i         (2, 15)
+ttheta        "--ttheta "               i         (10, 100)
+tdop          "--tdop "                 i         (10, 100)
+lr            "--lr  "                  i         (0, 10)
+target        "--target  "              r         (0.0, 1.0)

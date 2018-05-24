@@ -1,1 +1,6 @@
-../instrumental.jl --cfg ../cfg/default.yaml
+../gym.jl --cfg ../cfg/default.yaml --n_trials 50
+# ../gym.jl --cfg ../cfg/default.yaml --n_trials 100
+# ../gym.jl --cfg ../cfg/default.yaml --n_trials 150
+# ../gym.jl --cfg ../cfg/default.yaml --n_trials 200
+# ../gym.jl --cfg ../cfg/default.yaml --n_trials 250
+# ../gym.jl --cfg ../cfg/default.yaml --n_trials 300
