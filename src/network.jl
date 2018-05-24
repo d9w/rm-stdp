@@ -10,6 +10,7 @@ struct Network
     inputs::BitArray
     outputs::BitArray
     da::Array{Float64}
+    history::Dict
     cfg::Dict
 end
 
@@ -27,8 +28,8 @@ function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
     shuffle!(exc)
     inh = .~(exc)
     # set weights
-    weights = ones(n_neurons, n_neurons)
-    # weights[.~(exc), :] = 1.0
+    weights = cfg["wstart"] * ones(n_neurons, n_neurons)
+    weights[.~(exc), :] = cfg["winh"]
     # weights .*= (1.0 - eye(n_neurons, n_neurons))
     connections = (rand(n_neurons, n_neurons) .< connectivity)
     weights .*= connections
@@ -44,8 +45,10 @@ function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
     ge = zeros(n_neurons, n_neurons)
     gi = zeros(n_neurons, n_neurons)
     da = [0.0]
+    history = Dict()
+    history["spikes"] = BitArray(n_neurons, 0)
     Network(neurons, connections, weights, ge, gi, trace, exc, inh, inputs,
-            outputs, da, cfg)
+            outputs, da, history, cfg)
 end
 
 function input!(n::Network, input_spikes::BitArray)
@@ -59,37 +62,41 @@ function spike!(n::Network)
     spikes = n.neurons[:, 1] .>= (n.cfg["vthresh"] .+ n.neurons[:, 2])
     spikes[n.exc] .&= (n.neurons[n.exc, 3] .> n.cfg["refrac_e"])
     spikes[n.inh] .&= (n.neurons[n.inh, 3] .> n.cfg["refrac_i"])
-    n.neurons[spikes, 1] .= n.cfg["vreset"]
-    n.neurons[spikes, 2] .+= exp(-n.cfg["theta_plus"])
-    n.neurons[spikes, 3] .= 0.0
     # calculate conductance
     espikes = spikes .& n.exc
     n.ge[espikes, :] .+= n.weights[espikes, :]
     ispikes = spikes .& n.inh
     n.gi[ispikes, :] .+= n.weights[ispikes, :]
-    # apply post-synaptic membrane delta
+    # calculate post-synaptic membrane delta
     v = n.neurons[:, 1]
     dv = ((n.cfg["eleak"] - v) + (sum(n.ge, 1)' .* (n.cfg["eexc"] - v))
-          + (sum(n.gi, 1)' .* (n.cfg["einh"] - v)))
+          + (sum(n.gi, 1)' .* (n.cfg["einh"] - v))
+          + n.cfg["noise"] * rand(size(v)))
     dv[n.exc] /= n.cfg["tme"]
     dv[n.inh] /= n.cfg["tmi"]
-    nspikes = .~spikes
+    # update neuron state values
+    nspikes = .~(spikes)
+    n.neurons[spikes, 1] .= n.cfg["vreset"]
     n.neurons[nspikes, 1] .+= dv[nspikes]
+    n.neurons[spikes, 2] .+= exp(-n.cfg["theta_plus"])
     n.neurons[nspikes, 2] .-= n.neurons[nspikes, 2] / n.cfg["ttheta"]
+    n.neurons[spikes, 3] .= 0.0
     n.neurons[nspikes, 3] .+= 1.0
     n.ge .-= n.ge / n.cfg["te"]
     n.gi .-= n.gi / n.cfg["ti"]
+    n.history["spikes"] = [n.history["spikes"] spikes]
     spikes
 end
 
 function learn!(n::Network, spikes::BitArray)
     n.trace[spikes, :] .+= 1
-    n.trace .-= (n.trace / n.cfg["tt"])
+    n.trace .-= (n.trace / n.cfg["ttrace"])
     if n.da[1] > 0.0
         dw = (exp(-n.cfg["lr"]) * n.da[1] * (n.trace[n.exc, spikes] - n.cfg["target"]) .*
               (n.cfg["wmax"] - n.weights[n.exc, spikes]).^n.cfg["mu"])
         n.weights[n.exc, spikes] .+= dw
         n.weights[n.weights .> n.cfg["wmax"]] .= n.cfg["wmax"]
+        n.weights[n.weights .< 0.0] .= 0.0
         n.weights .*= n.connections
         n.da .-= n.da / n.cfg["tdop"]
     end
