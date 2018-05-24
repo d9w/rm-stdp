@@ -3,7 +3,7 @@ using PyCall
 @pyimport gym
 @pyimport pybullet_envs.bullet.simpleHumanoidGymEnv as humangym
 
-function play_env(n::Network, env, tsim::Int64, n_actions::Int64)
+function play_env(n::Network, env, tsim::Int64, n_actions::Int64, fr::Float64)
     env[:seed](0)
     ob = env[:reset]()
     nin = sum(n.inputs)
@@ -17,6 +17,7 @@ function play_env(n::Network, env, tsim::Int64, n_actions::Int64)
     while ~done
         nob = (ob - ob_low) ./ (ob_high - ob_low)
         append!(nob, [rand()])
+        nob .*= fr
         ins = rand(nin, tsim)
         inputs = falses(nin, tsim)
         for i in 1:nin
@@ -38,11 +39,11 @@ function play_env(n::Network, env, tsim::Int64, n_actions::Int64)
 end
 
 function repeat_trials(n::Network, env; tsim::Int64=10, ma_rate::Float64=0.9,
-                       n_actions::Int64=2, n_trials::Int64=50)
-    ma_reward = play_env(n, env, tsim, n_actions)
+                       n_actions::Int64=2, n_trials::Int64=50, fr::Float64=1.0)
+    ma_reward = play_env(n, env, tsim, n_actions, fr)
 
     for i in 1:n_trials
-        reward = play_env(n, env, tsim, n_actions)
+        reward = play_env(n, env, tsim, n_actions, fr)
         dop = reward - ma_reward
         if dop > 0
             n.da[1] += dop
@@ -50,7 +51,7 @@ function repeat_trials(n::Network, env; tsim::Int64=10, ma_rate::Float64=0.9,
         ma_reward = (1.0 - ma_rate) * ma_reward + ma_rate * reward
     end
 
-    final_reward = mean(x->play_env(n, env, tsim, n_actions), 1:3)
+    final_reward = mean(x->play_env(n, env, tsim, n_actions, fr), 1:3)
 end
 
 

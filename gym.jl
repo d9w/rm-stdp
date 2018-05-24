@@ -55,6 +55,9 @@ argtable = ArgParseSettings()
     "--target"
     arg_type = Float64
     default = 0.1
+    "--fr"
+    arg_type = Float64
+    default = 1.0
 end
 args = parse_args(argtable)
 
@@ -78,5 +81,5 @@ nn = Int64(round((nin + nout) * 2.5))
 srand(args["seed"])
 n = Network(nn, nin, nout, args["connectivity"], cfg)
 fit = repeat_trials(n, env; tsim=args["tsim"], ma_rate=args["ma_rate"],
-                    n_trials=args["ntrials"])
+                    n_trials=args["ntrials"], fr=args["fr"])
 Logging.info(@sprintf("E%0.6f", -fit))
