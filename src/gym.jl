@@ -59,10 +59,20 @@ function repeat_trials(n::Network, env; tsim::Int64=10, ma_rate::Float64=0.9,
         if reward == 0
             return 0
         end
-        dop = reward - ma_reward
-        if dop > 0
-            n.da[1] += dop
+        dop = 0.0
+        if ma_reward > 0
+            dop = reward / ma_reward
+            if dop > 1.0
+                n.da[1] += dop
+            end
         end
+        Logging.info(@sprintf("R: %d %0.6f %0.6f %0.6f %0.6f %0.6f %0.6f %0.6f",
+                              i, reward, dop, ma_reward,
+                              mean(n.weights),
+                              mean(n.weights[n.inputs, n.exc]),
+                              mean(n.weights[n.inputs, n.outputs]),
+                              mean(n.weights[n.exc, n.outputs])))
+
         ma_reward = (1.0 - ma_rate) * ma_reward + ma_rate * reward
     end
 

@@ -84,7 +84,7 @@ function spike!(n::Network)
     n.neurons[nspikes, 3] .+= 1.0
     n.ge .-= n.ge / n.cfg["te"]
     n.gi .-= n.gi / n.cfg["ti"]
-    n.history["spikes"] = [n.history["spikes"] spikes]
+    # n.history["spikes"] = [n.history["spikes"] spikes]
     spikes
 end
 
