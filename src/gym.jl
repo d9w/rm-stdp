@@ -54,7 +54,10 @@ function repeat_trials(n::Network, env; tsim::Int64=10, ma_rate::Float64=0.9,
                        n_actions::Int64=2, n_trials::Int64=50, fr::Float64=1.0)
     ma_reward = play_env(n, env, tsim, n_actions, fr, true)
 
+    init_weights = copy(n.weights)
+
     for i in 1:n_trials
+        weights = copy(n.weights)
         reward = play_env(n, env, tsim, n_actions, fr, true)
         if reward == 0
             return 0
@@ -66,17 +69,14 @@ function repeat_trials(n::Network, env; tsim::Int64=10, ma_rate::Float64=0.9,
                 n.da[1] += dop
             end
         end
-        Logging.info(@sprintf("R: %d %0.6f %0.6f %0.6f %0.6f %0.6f %0.6f %0.6f",
+        Logging.info(@sprintf("R: %d %0.6f %0.6f %0.6f %0.6f %0.6f",
                               i, reward, dop, ma_reward,
-                              mean(n.weights),
-                              mean(n.weights[n.inputs, n.exc]),
-                              mean(n.weights[n.inputs, n.outputs]),
-                              mean(n.weights[n.exc, n.outputs])))
-
+                              sum(abs.(n.weights - init_weights)) / length(n.weights),
+                              sum(abs.(n.weights - weights)) / length(n.weights)))
         ma_reward = (1.0 - ma_rate) * ma_reward + ma_rate * reward
     end
 
-    final_reward = mean(x->play_env(n, env, tsim, n_actions, fr, false), 1:5)
+    final_reward = mean(x->play_env(n, env, tsim, n_actions, fr, false), 1:10)
 end
 
 
