@@ -18,9 +18,6 @@ argtable = ArgParseSettings()
     "--vinput"
     arg_type = Int64
     default = 15
-    "--thalamic"
-    arg_type = Float64
-    default = 5.0
     "--connectivity"
     arg_type = Float64
     default = 0.1
@@ -36,20 +33,20 @@ args = parse_args(argtable)
 cfg = YAML.load_file(args["cfg"])
 Logging.configure(filename=args["log"], level=INFO)
 
-for k in ["vinput", "thalamic", "connectivity", "lr", "target"]
+for k in ["vinput", "lr", "target"]
     cfg[k] = args[k]
 end
 
-nn = 100
-nin = 10
-nout = 10
-episodes = 10
+nn = 1000
+nin = 100
+nout = 100
+episodes = 5
 tdelay = 20
 treward = 100
 trest = 1000
 
 srand(args["seed"])
-n = Network(nn, nin, 2*nout, cfg)
+n = Network(nn, 2*nin, 2*nout, args["connectivity"], cfg)
 ga = find(n.outputs)[1:nout]
 gb = find(n.outputs)[nout+(1:nout)]
 
@@ -63,7 +60,7 @@ Logging.info(@sprintf("E: %d %d %d %d %d %0.7f %0.7f",
 
 for episode in 1:episodes
     nspikes = 0
-    input!(n, trues(nin))
+    input!(n, [trues(nin); falses(nin)])
     nspikes += sum(spike!(n))
     ca = 0
     cb = 0
@@ -84,7 +81,10 @@ for episode in 1:episodes
         nspikes += sum(spike!(n))
     end
     n.da[1] += reward
-    for t in 1:(trest - delay)
+    tsim = trest - delay
+    inputs = rand(2*nin, tsim) .< 0.1
+    for t in 1:tsim
+        input!(n, inputs[:, t])
         spikes = spike!(n)
         learn!(n, spikes)
         nspikes += sum(spikes)

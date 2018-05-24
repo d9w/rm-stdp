@@ -1,10 +1,12 @@
 struct Network
     neurons::Array{Float64}
+    connections::BitArray
     weights::Array{Float64}
     ge::Array{Float64}
     gi::Array{Float64}
     trace::Array{Float64}
-    excitatory::BitArray
+    exc::BitArray
+    inh::BitArray
     inputs::BitArray
     outputs::BitArray
     da::Array{Float64}
@@ -12,33 +14,38 @@ struct Network
 end
 
 function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
-                 cfg::Dict; n_exc::Int64 = Int64(round(0.8 * n_neurons)))
+                 connectivity::Float64, cfg::Dict;
+                 n_exc::Int64 = Int64(round(0.8 * n_neurons)))
     # starting membrane threshold for all neurons
-    neurons = zeros(n_neurons, 1)
+    neurons = zeros(n_neurons, 3)
     neurons[:, 1] = cfg["vreset"]
-    # index of excitatory neurons
+    neurons[:, 2] = 0.0 # homeostasis
+    neurons[:, 3] = 0.0 # refractory
+    # index of exc neurons
     n_inh = n_neurons - n_exc
-    excitatory = [trues(n_exc); falses(n_inh)]
-    shuffle!(excitatory)
+    exc = [trues(n_exc); falses(n_inh)]
+    shuffle!(exc)
+    inh = .~(exc)
     # set weights
-    weights = rand(n_neurons, n_neurons)
-    weights[.~(excitatory), :] = 1.0
-    weights .*= (1.0 - eye(n_neurons, n_neurons))
-    weights .*= (rand(n_neurons, n_neurons) .< cfg["connectivity"])
+    weights = ones(n_neurons, n_neurons)
+    # weights[.~(exc), :] = 1.0
+    # weights .*= (1.0 - eye(n_neurons, n_neurons))
+    connections = (rand(n_neurons, n_neurons) .< connectivity)
+    weights .*= connections
     # set input neurons
     inputs = falses(n_neurons)
-    inds = shuffle(find(excitatory))
+    inds = shuffle(find(exc))
     inputs[inds[1:n_input]] = true
     # set output neurons
     outputs = falses(n_neurons)
-    inds = shuffle(find(excitatory .& .~(inputs)))
+    inds = shuffle(find(exc .& .~(inputs)))
     outputs[inds[1:n_output]] = true
     trace = zeros(n_neurons, n_neurons)
     ge = zeros(n_neurons, n_neurons)
     gi = zeros(n_neurons, n_neurons)
     da = [0.0]
-    Network(neurons, weights, ge, gi, trace, excitatory, inputs, outputs,
-            da, cfg)
+    Network(neurons, connections, weights, ge, gi, trace, exc, inh, inputs,
+            outputs, da, cfg)
 end
 
 function input!(n::Network, input_spikes::BitArray)
@@ -49,19 +56,27 @@ end
 
 function spike!(n::Network)
     # calculate spikes, reset spiked pre-synaptic membranes
-    spikes = n.neurons[:, 1] .>= n.cfg["vthresh"]
+    spikes = n.neurons[:, 1] .>= (n.cfg["vthresh"] .+ n.neurons[:, 2])
+    spikes[n.exc] .&= (n.neurons[n.exc, 3] .> n.cfg["refrac_e"])
+    spikes[n.inh] .&= (n.neurons[n.inh, 3] .> n.cfg["refrac_i"])
     n.neurons[spikes, 1] .= n.cfg["vreset"]
+    n.neurons[spikes, 2] .+= n.cfg["theta_plus"]
+    n.neurons[spikes, 3] .= 0.0
     # calculate conductance
-    espikes = spikes .& n.excitatory
+    espikes = spikes .& n.exc
     n.ge[espikes, :] .+= n.weights[espikes, :]
-    ispikes = spikes .& .~(n.excitatory)
+    ispikes = spikes .& n.inh
     n.gi[ispikes, :] .+= n.weights[ispikes, :]
     # apply post-synaptic membrane delta
     v = n.neurons[:, 1]
     dv = ((n.cfg["eleak"] - v) + (sum(n.ge, 1)' .* (n.cfg["eexc"] - v))
-          + (sum(n.gi, 1)' .* (n.cfg["einh"] - v))
-          + n.cfg["thalamic"] * randn(size(v))) / n.cfg["tm"]
-    n.neurons[:, 1] .+= dv[:]
+          + (sum(n.gi, 1)' .* (n.cfg["einh"] - v)))
+    dv[n.exc] /= n.cfg["tme"]
+    dv[n.inh] /= n.cfg["tmi"]
+    nspikes = .~spikes
+    n.neurons[nspikes, 1] .+= dv[nspikes]
+    n.neurons[nspikes, 2] .-= n.neurons[nspikes, 2] / n.cfg["ttheta"]
+    n.neurons[nspikes, 3] .+= 1.0
     n.ge .-= n.ge / n.cfg["te"]
     n.gi .-= n.gi / n.cfg["ti"]
     spikes
@@ -71,10 +86,11 @@ function learn!(n::Network, spikes::BitArray)
     n.trace[spikes, :] .+= 1
     n.trace .-= (n.trace / n.cfg["tt"])
     if n.da[1] > 0.0
-        dw = (n.cfg["lr"] * n.da[1] * (n.trace[:, spikes] - n.cfg["target"]) .*
-              (n.cfg["wmax"] - n.weights[:, spikes]).^n.cfg["mu"])
-        n.weights[:, spikes] .+= dw
+        dw = (n.cfg["lr"] * n.da[1] * (n.trace[n.exc, spikes] - n.cfg["target"]) .*
+              (n.cfg["wmax"] - n.weights[n.exc, spikes]).^n.cfg["mu"])
+        n.weights[n.exc, spikes] .+= dw
         n.weights[n.weights .> n.cfg["wmax"]] .= n.cfg["wmax"]
+        n.weights .*= n.connections
         n.da .*= (1.0 - n.cfg["dopamine_absorption"])
     end
     nothing

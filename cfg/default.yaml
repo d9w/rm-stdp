@@ -1,17 +1,20 @@
-vreset: -65 # mV
-vinput: 15 # mV
-vthresh: -50 # mV
-eleak: -70 # mV
-eexc: 0 # mV
-einh: -80 # mV
-thalamic: 5.0 # mV
-connectivity: 0.1
-tm: 20 # ms
-te: 3 # ms
-ti: 5 # ms
-tt: 20 # ms
+vreset: -65.0 # mV
+vinput: 15.0 # mV
+vthresh: -50.0 # mV
+eleak: -70.0 # mV
+eexc: 0.0 # mV
+einh: -80.0 # mV
+theta_plus: 0.1 # mV
+refrac_e: 10.0 # ms
+refrac_i: 5.0 # ms
+tme: 20.0 # ms
+tmi: 10.0 # ms
+te: 3.0 # ms
+ti: 5.0 # ms
+tt: 20.0 # ms
+ttheta: 1000.0 # ms
 lr: 0.001
 target: 0.1
-wmax: 1.0
+wmax: 4.0
 mu: 0.4
 dopamine_absorption: 0.005
