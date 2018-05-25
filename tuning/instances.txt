@@ -1,7 +1,5 @@
-../gym.jl --cfg ../cfg/default.yaml --id InvertedPendulumBulletEnv-v0 --n_trials 10 --rmethod episodic
 ../gym.jl --cfg ../cfg/default.yaml --id InvertedPendulumBulletEnv-v0 --n_trials 50 --rmethod episodic
 ../gym.jl --cfg ../cfg/default.yaml --id InvertedPendulumBulletEnv-v0 --n_trials 100 --rmethod episodic
-../gym.jl --cfg ../cfg/default.yaml --id InvertedDoublePendulumBulletEnv-v0 --n_trials 10 --rmethod episodic
 ../gym.jl --cfg ../cfg/default.yaml --id InvertedDoublePendulumBulletEnv-v0 --n_trials 50 --rmethod episodic
 ../gym.jl --cfg ../cfg/default.yaml --id InvertedDoublePendulumBulletEnv-v0 --n_trials 100 --rmethod episodic
 #../gym.jl --cfg ../cfg/default.yaml --id HalfCheetahBulletEnv-v0 --n_trials 1 --rmethod continuous

@@ -99,8 +99,8 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
         if dweights > 0.0 && p_reward > reward
             change += 1.0
         end
-        if i > 4 * (change + 1)
-            return change
+        if i > 10 && i > 3 * (change + 1)
+            break
         end
         p_reward = reward
         Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %0.6f %e %e",
@@ -112,7 +112,7 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
         end
     end
 
-    change
+    map(x->play_env(n, env, pcfg, n_trials+x, false), 1:5)
 end
 
 
