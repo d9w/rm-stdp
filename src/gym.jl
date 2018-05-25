@@ -112,7 +112,7 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
         end
     end
 
-    map(x->play_env(n, env, pcfg, n_trials+x, false), 1:5)
+    mean(x->play_env(n, env, pcfg, n_trials+x, false), 1:5)
 end
 
 
