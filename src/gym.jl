@@ -12,8 +12,6 @@ function play_env(n::Network, env, pcfg::Dict, trial::Int64=1, train::Bool=true)
     ma_reward = -Inf
     pcfg["outrate"] = 1.0
     step = 0
-    good_steps = 5
-    bad_steps = 0
 
     init_weights = copy(n.weights)
 
@@ -39,14 +37,6 @@ function play_env(n::Network, env, pcfg::Dict, trial::Int64=1, train::Bool=true)
         end
         maxcount = maximum(ocount)
         mincount = minimum(ocount)
-        if maxcount == mincount
-            bad_steps += 1
-        else
-            good_steps += 1
-        end
-        if bad_steps > good_steps
-            return -1e5
-        end
         action = zeros(pcfg["n_actions"])
         for i in 1:pcfg["n_actions"]
             ca = ocount[(i-1)*2 + 1]
@@ -91,9 +81,6 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
     ma_reward = play_env(n, env, pcfg, 0, false)
     p_reward = ma_reward
     change = 0
-    if ma_reward == -1e5
-        return ma_reward
-    end
 
     for i in 1:n_trials
         weights = copy(n.weights)
@@ -110,16 +97,13 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
         end
         dweights = sum(abs.(n.weights - weights)) / length(n.weights)
         if dweights > 0.0
-            change += (reward - p_reward)
+            change += sign(reward - p_reward)
         end
         p_reward = reward
         Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %0.6f %0.6f %0.6f",
                               pcfg["env"], i, reward, ma_reward, dop, change,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
                               dweights))
-        if reward == -1e5
-            return reward
-        end
         for t in 1:pcfg["trest"]
             spike!(n)
         end
