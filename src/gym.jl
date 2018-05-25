@@ -91,6 +91,9 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
     ma_reward = play_env(n, env, pcfg, 0, false)
     p_reward = ma_reward
     change = 0
+    if ma_reward == -1e5
+        return reward
+    end
 
     for i in 1:n_trials
         weights = copy(n.weights)
