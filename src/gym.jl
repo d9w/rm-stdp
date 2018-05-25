@@ -58,9 +58,6 @@ function play_env(n::Network, env, pcfg::Dict, trial::Int64=1, train::Bool=true)
             end
         end
         ob, reward, done, _ = env[:step](action)
-        if pcfg["rmethod"] == "episodic"
-            reward = 1.0
-        end
         nscale = maximum(abs.(ob))
         if nscale > scale
             scale = nscale
@@ -92,6 +89,8 @@ end
 function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
     init_weights = copy(n.weights)
     ma_reward = play_env(n, env, pcfg, 0, false)
+    p_reward = ma_reward
+    change = 0
 
     for i in 1:n_trials
         weights = copy(n.weights)
@@ -106,10 +105,15 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
             end
             ma_reward = (1.0 - pcfg["ma_rate"]) * ma_reward + pcfg["ma_rate"] * reward
         end
-        Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %0.6f %0.6f",
-                              pcfg["env"], i, reward, ma_reward, dop,
+        dweights = sum(abs.(n.weights - weights)) / length(n.weights)
+        if dweights > 0.0
+            change += (reward - p_reward)
+        end
+        p_reward = reward
+        Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %0.6f %0.6f %0.6f",
+                              pcfg["env"], i, reward, ma_reward, dop, change,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
-                              sum(abs.(n.weights - weights)) / length(n.weights)))
+                              dweights))
         if reward == -1e5
             return reward
         end
@@ -118,7 +122,7 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
         end
     end
 
-    final_reward = mean(x->play_env(n, env, pcfg, n_trials+x, false), 1:3)
+    change
 end
 
 
