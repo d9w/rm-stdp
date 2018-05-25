@@ -99,7 +99,7 @@ nn = Int64(round((nin + nout) * args["nratio"]))
 
 srand(args["seed"])
 n = Network(nn, nin, nout, args["connectivity"], cfg)
-fit = repeat_trials(n, env; tsim=args["tsim"], ma_rate=args["ma_rate"],
+fit = repeat_trials(n, env; tsim=args["tsim"]*10, ma_rate=args["ma_rate"],
                     n_trials=args["ntrials"], fr=args["fr"])
 Logging.info(@sprintf("E%0.6f", -fit))
 
