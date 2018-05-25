@@ -64,6 +64,9 @@ argtable = ArgParseSettings()
     "--target"
     arg_type = Float64
     default = 0.9
+    "--wrandom"
+    arg_type = Bool
+    default = false
     "--wstart"
     arg_type = Float64
     default = 0.9
@@ -97,7 +100,7 @@ args = parse_args(argtable)
 cfg = YAML.load_file(args["cfg"])
 
 for k in ["noise", "vinput", "theta_plus", "refrac_e", "refrac_i", "lr",
-          "target", "wstart", "winh", "wmax", "mu"]
+          "target", "wrandom", "wstart", "winh", "wmax", "mu"]
     cfg[k] = args[k]
 end
 

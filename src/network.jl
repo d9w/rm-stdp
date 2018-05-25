@@ -31,7 +31,10 @@ function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
     inh = .~(exc)
     # set weights
     weights = cfg["wstart"] * ones(n_neurons, n_neurons)
-    weights[.~(exc), :] = cfg["winh"]
+    if cfg["wrandom"]
+        weights .*= rand(n_neurons, n_neurons)
+    end
+    weights[inh, :] .= cfg["winh"]
     # weights .*= (1.0 - eye(n_neurons, n_neurons))
     connections = (rand(n_neurons, n_neurons) .< connectivity)
     weights .*= connections

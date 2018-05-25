@@ -17,6 +17,7 @@ ttheta: 780.0 # ms
 tdop: 320.0 # ms
 lr: 7
 target: 0.9
+wrandom: true
 wstart: 0.7
 winh: 0.5
 wmax: 2.1
