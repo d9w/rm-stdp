@@ -78,7 +78,7 @@ function spike!(n::Network)
     nspikes = .~(spikes)
     n.neurons[spikes, 1] .= n.cfg["vreset"]
     n.neurons[nspikes, 1] .+= dv[nspikes]
-    n.neurons[spikes, 2] .+= exp(-n.cfg["theta_plus"])
+    n.neurons[spikes, 2] .+= n.cfg["theta_plus"]
     n.neurons[nspikes, 2] .-= n.neurons[nspikes, 2] / n.cfg["ttheta"]
     n.neurons[spikes, 3] .= 0.0
     n.neurons[nspikes, 3] .+= 1.0

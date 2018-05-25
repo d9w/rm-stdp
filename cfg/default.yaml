@@ -5,7 +5,7 @@ eleak: -70.0 # mV
 eexc: 0.0 # mV
 einh: -80.0 # mV
 noise: 10.0 # mV
-theta_plus: 1 # exp() = mV
+theta_plus: 1.0 # mV
 refrac_e: 10.0 # ms
 refrac_i: 5.0 # ms
 tme: 20.0 # ms
