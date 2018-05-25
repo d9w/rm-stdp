@@ -96,8 +96,11 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
             ma_reward = (1.0 - pcfg["ma_rate"]) * ma_reward + pcfg["ma_rate"] * reward
         end
         dweights = sum(abs.(n.weights - weights)) / length(n.weights)
-        if dweights > 0.0
-            change += sign(reward - p_reward)
+        if dweights > 0.0 && p_reward > reward
+            change += 1.0
+        end
+        if i > 4 * (change + 1)
+            return change
         end
         p_reward = reward
         Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %0.6f %e %e",
