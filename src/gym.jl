@@ -51,7 +51,11 @@ function play_env(n::Network, env, pcfg::Dict, trial::Int64=1, train::Bool=true)
         for i in 1:pcfg["n_actions"]
             ca = ocount[(i-1)*2 + 1]
             cb = ocount[(i-1)*2 + 2]
-            action[i] = (ca - cb) / (ca + cb)
+            if ca+cb > 0
+                action[i] = (ca - cb) / (ca + cb)
+            else
+                action[i] = 0.0
+            end
         end
         ob, reward, done, _ = env[:step](action)
         if pcfg["rmethod"] == "episodic"
