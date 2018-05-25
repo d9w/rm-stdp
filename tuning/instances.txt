@@ -1,7 +1,12 @@
-../gym.jl --cfg ../cfg/default.yaml --ntrials 10
-../gym.jl --cfg ../cfg/default.yaml --ntrials 50
-../gym.jl --cfg ../cfg/default.yaml --ntrials 100
-#../gym.jl --cfg ../cfg/default.yaml --ntrials 150
-#../gym.jl --cfg ../cfg/default.yaml --ntrials 200
-#../gym.jl --cfg ../cfg/default.yaml --ntrials 250
-#../gym.jl --cfg ../cfg/default.yaml --ntrials 300
+../gym.jl --cfg ../cfg/default.yaml --id InvertedPendulumBulletEnv-v0 --n_trials 10 --rmethod episodic
+../gym.jl --cfg ../cfg/default.yaml --id InvertedPendulumBulletEnv-v0 --n_trials 50 --rmethod episodic
+../gym.jl --cfg ../cfg/default.yaml --id InvertedPendulumBulletEnv-v0 --n_trials 100 --rmethod episodic
+../gym.jl --cfg ../cfg/default.yaml --id InvertedDoublePendulumBulletEnv-v0 --n_trials 10 --rmethod episodic
+../gym.jl --cfg ../cfg/default.yaml --id InvertedDoublePendulumBulletEnv-v0 --n_trials 50 --rmethod episodic
+../gym.jl --cfg ../cfg/default.yaml --id InvertedDoublePendulumBulletEnv-v0 --n_trials 100 --rmethod episodic
+#../gym.jl --cfg ../cfg/default.yaml --id HalfCheetahBulletEnv-v0 --n_trials 1 --rmethod continuous
+#../gym.jl --cfg ../cfg/default.yaml --id HalfCheetahBulletEnv-v0 --n_trials 10 --rmethod continuous
+#../gym.jl --cfg ../cfg/default.yaml --id HalfCheetahBulletEnv-v0 --n_trials 20 --rmethod continuous
+#../gym.jl --cfg ../cfg/default.yaml --id Walker2DBulletEnv-v0 --n_trials 1 --rmethod continuous
+#../gym.jl --cfg ../cfg/default.yaml --id Walker2DBulletEnv-v0 --n_trials 10 --rmethod continuous
+#../gym.jl --cfg ../cfg/default.yaml --id Walker2DBulletEnv-v0 --n_trials 20 --rmethod continuous

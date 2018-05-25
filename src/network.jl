@@ -1,5 +1,7 @@
 struct Network
     neurons::Array{Float64}
+    nin::Int64
+    nout::Int64
     connections::BitArray
     weights::Array{Float64}
     ge::Array{Float64}
@@ -47,8 +49,8 @@ function Network(n_neurons::Int64, n_input::Int64, n_output::Int64,
     da = [0.0]
     history = Dict()
     history["spikes"] = BitArray(n_neurons, 0)
-    Network(neurons, connections, weights, ge, gi, trace, exc, inh, inputs,
-            outputs, da, history, cfg)
+    Network(neurons, n_input, n_output, connections, weights, ge, gi, trace,
+            exc, inh, inputs, outputs, da, history, cfg)
 end
 
 function input!(n::Network, input_spikes::BitArray)

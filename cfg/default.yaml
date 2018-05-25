@@ -4,20 +4,20 @@ vthresh: -50.0 # mV
 eleak: -70.0 # mV
 eexc: 0.0 # mV
 einh: -80.0 # mV
-noise: 10.0 # mV
-theta_plus: 1.0 # mV
-refrac_e: 10.0 # ms
-refrac_i: 5.0 # ms
+noise: 8.0 # mV
+theta_plus: 0.1 # mV
+refrac_e: 6.0 # ms
+refrac_i: 11.0 # ms
 tme: 20.0 # ms
 tmi: 10.0 # ms
 te: 3.0 # ms
 ti: 5.0 # ms
 ttrace: 20.0 # ms
-ttheta: 200.0 # ms
-tdop: 200.0 # ms
-lr: 3
-target: 0.1
-wstart: 0.9
-winh: 1.0
-wmax: 2.0
+ttheta: 780.0 # ms
+tdop: 320.0 # ms
+lr: 7
+target: 0.9
+wstart: 0.7
+winh: 0.5
+wmax: 2.1
 mu: 0.4

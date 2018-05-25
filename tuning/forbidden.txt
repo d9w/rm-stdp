@@ -9,3 +9,5 @@
 ## then the configuration is discarded.
 ##
 ## Examples of valid logical operators are: ==  !=  >=  <=  >  <  &  |  !  %in%
+wstart >= wmax
+noise >= vinput
