@@ -65,7 +65,7 @@ function play_env(n::Network, env, pcfg::Dict, trial::Int64=1, train::Bool=true)
             end
             ma_reward = (1.0 - pcfg["ma_rate"]) * ma_reward + pcfg["ma_rate"] * reward
         end
-        Logging.info(@sprintf("S: %s %d %d %d %d %0.6f %0.6f %0.6f %0.6f %0.6f",
+        Logging.info(@sprintf("S: %s %d %d %d %d %0.6f %0.6f %0.6f %e %e",
                               pcfg["env"], trial, step, maxcount, mincount,
                               reward, ma_reward, dop,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
@@ -100,7 +100,7 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
             change += sign(reward - p_reward)
         end
         p_reward = reward
-        Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %0.6f %0.6f %0.6f",
+        Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %0.6f %e %e",
                               pcfg["env"], i, reward, ma_reward, dop, change,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
                               dweights))
