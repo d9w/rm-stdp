@@ -92,7 +92,7 @@ function repeat_trials(n::Network, env, pcfg::Dict, n_trials=10);
     p_reward = ma_reward
     change = 0
     if ma_reward == -1e5
-        return reward
+        return ma_reward
     end
 
     for i in 1:n_trials
