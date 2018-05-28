@@ -12,4 +12,4 @@
 wstart >= wmax
 noise >= vinput
 target >= wmax
-win >= wmax
+winh >= wmax

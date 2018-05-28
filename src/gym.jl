@@ -15,7 +15,7 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
     bad_step = 0
 
     while ~done
-        nob = min.(max.(((ob - ehigh) / (ehigh - elow)), 0.0), 1.0) * pcfg["fr"]
+        nob = min.(max.(((ob - ehigh) ./ (ehigh - elow)), 0.0), 1.0) .* pcfg["fr"]
         ins = rand(n.nin, pcfg["tinput"])
         inputs = falses(n.nin, pcfg["tinput"])
         for i in 1:n.nin
