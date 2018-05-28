@@ -1,9 +1,10 @@
+../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 50
 ../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 100
+../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 150
 ../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 200
-../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 300
 ../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 100
-../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 200
-../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 300
+#../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 200
+#../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 300
 ../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 100
-../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 200
-../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 300
+#../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 200
+#../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 300

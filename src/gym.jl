@@ -46,7 +46,10 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
         ob, reward, done, _ = env[:step](indmax(ocount)-1)
         total_reward += reward
         step += 1
-        if bad_step > 10
+        Logging.info(@sprintf("S: %s %d %d %d %d %0.6f %0.6f",
+                              pcfg["env"], trial, step, maxcount, mincount,
+                              reward, total_reward))
+        if bad_step > 20
             return -1e4
         end
     end
