@@ -11,3 +11,5 @@
 ## Examples of valid logical operators are: ==  !=  >=  <=  >  <  &  |  !  %in%
 wstart >= wmax
 noise >= vinput
+target >= wmax
+win >= wmax

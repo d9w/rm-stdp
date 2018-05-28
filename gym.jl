@@ -1,4 +1,5 @@
 using YAML
+using JSON
 using Logging
 using ArgParse
 
@@ -28,7 +29,10 @@ argtable = ArgParseSettings()
     "--connectivity"
     arg_type = Float64
     default = 0.1
-    "--tsim"
+    "--tinput"
+    arg_type = Int64
+    default = 6
+    "--toutput"
     arg_type = Int64
     default = 6
     "--trest"
@@ -88,12 +92,9 @@ argtable = ArgParseSettings()
     "--nratio"
     arg_type = Float64
     default = 2.5
-    "--outrate"
-    arg_type = Float64
-    default = 0.4
-    "--rmethod"
-    arg_type = String
-    default = "episodic"
+    "--repeat"
+    arg_type = Bool
+    default = true
 end
 args = parse_args(argtable)
 
@@ -105,16 +106,17 @@ for k in ["noise", "vinput", "theta_plus", "refrac_e", "refrac_i", "lr",
 end
 
 for k in ["ttheta", "tdop"]
-    cfg[k] = args[k] * 10
+    cfg[k] = args[k] * 100
 end
 
 Logging.configure(filename=args["log"], level=INFO)
-Logging.info(repr(cfg))
+Logging.info(@sprintf("Arguments: %s", JSON.json(args)))
+Logging.info(@sprintf("Config: %s", JSON.json(cfg)))
 
 env = gym.make(args["id"])
 nin = env[:observation_space][:shape][1] * args["n"]
-naction = env[:action_space][:shape][1]
-nout = naction * 2 * args["n"]
+naction = env[:action_space][:n]
+nout = naction * args["n"]
 nn = Int64(round((nin + nout) * args["nratio"]))
 
 srand(args["seed"])
@@ -123,17 +125,14 @@ n = Network(nn, nin, nout, args["connectivity"], cfg)
 pcfg = Dict()
 pcfg["env"] = args["id"]
 pcfg["n_actions"] = naction
-pcfg["tsim"] = args["tsim"] * 10
-pcfg["trest"] = args["trest"] * 10
-for k in ["ma_rate", "fr", "outrate", "rmethod"]
+for k in ["tinput", "toutput", "trest"]
+    pcfg[k] = args[k] * 10
+end
+for k in ["ma_rate", "fr", "n_trials", "repeat", "seed"]
     pcfg[k] = args[k]
 end
 
-if args["n_trials"] > 1
-    fit = repeat_trials(n, env, pcfg, args["n_trials"])
-else
-    fit = play_env(n, env, pcfg, 0, true)
-end
+fit = repeat_trials(n, env, pcfg)
 Logging.info(@sprintf("E%0.6f", -fit))
 
 if length(args["plot"]) > 0

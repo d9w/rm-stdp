@@ -87,6 +87,8 @@ function spike!(n::Network)
     n.neurons[nspikes, 2] .-= n.neurons[nspikes, 2] / n.cfg["ttheta"]
     n.neurons[spikes, 3] .= 0.0
     n.neurons[nspikes, 3] .+= 1.0
+    n.trace[spikes, :] .+= 1
+    n.trace .-= (n.trace / n.cfg["ttrace"])
     n.ge .-= n.ge / n.cfg["te"]
     n.gi .-= n.gi / n.cfg["ti"]
     # n.history["spikes"] = [n.history["spikes"] spikes]
@@ -94,8 +96,6 @@ function spike!(n::Network)
 end
 
 function learn!(n::Network, spikes::BitArray)
-    n.trace[spikes, :] .+= 1
-    n.trace .-= (n.trace / n.cfg["ttrace"])
     if n.da[1] > 0.0
         dw = (exp(-n.cfg["lr"]) * n.da[1] * (n.trace[n.exc, spikes] - n.cfg["target"]) .*
               (n.cfg["wmax"] - n.weights[n.exc, spikes]).^n.cfg["mu"])
