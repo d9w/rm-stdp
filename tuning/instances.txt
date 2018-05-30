@@ -3,10 +3,4 @@
 ../classify.jl --cfg ../cfg/default.yaml --data iris --n_epochs 10 --supervised false
 ../classify.jl --cfg ../cfg/default.yaml --data iris --n_epochs 50 --supervised false
 ../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 10
-../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 50
 ../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 10 --supervised false
-../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 50 --supervised false
-../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 10
-../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 50
-../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 10 --supervised false
-../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 50 --supervised false

@@ -61,17 +61,31 @@ end
 function run_classify(n::Network, X::Array{Float64}, Y::Array{Int64}, pcfg::Dict)
     init_weights = copy(n.weights)
     trainx, trainy, testx, testy = train_test_split(X, Y)
+    static_count = 0
 
     for i in 1:pcfg["n_epochs"]
         weights = copy(n.weights)
         acc, rindex = classify(n, trainx, trainy, pcfg, true)
-        Logging.info(@sprintf("T: %s %d %d %d %0.6f %0.6f %e %e",
+        dweight = sum(abs.(n.weights - weights)) / length(n.weights)
+        Logging.info(@sprintf("T: %s %d %d %d %d %0.6f %0.6f %e %e",
                               pcfg["data"], pcfg["seed"], pcfg["supervised"],
-                              i, acc, rindex,
+                              i, static_count, acc, rindex,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
-                              sum(abs.(n.weights - weights)) / length(n.weights)))
+                              dweight))
+        if dweight < (0.001 / length(n.weights))
+            static_count += 1
+        else
+            static_count = 0
+        end
+        if static_count > 10
+            break
+        end
     end
 
     acc, rindex = classify(n, testx, testy, pcfg, false)
-    rindex
+    fit = rindex
+    if pcfg["supervised"]
+        fit = acc
+    end
+    fit
 end
