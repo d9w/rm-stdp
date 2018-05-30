@@ -11,7 +11,7 @@ argtable = ArgParseSettings()
     argtable,
     "--seed", arg_type = Int, default = 0,
     "--log", arg_type = String, default = "gym.log",
-    "--id", arg_type = String, default = "HalfCheetahBulletEnv-v0",
+    "--id", arg_type = String, default = "CartPole-v0",
     "--plot", arg_type = String, default = "",
     "--n_trials", arg_type = Int64, default = 1,
     "--connectivity", arg_type = Float64, default = 0.3,
@@ -22,7 +22,8 @@ argtable = ArgParseSettings()
     "--fr", arg_type = Float64, default = 0.5,
     "--n", arg_type = Int64, default = 12,
     "--nratio", arg_type = Float64, default = 2.8,
-    "--repeat", arg_type = Bool, default = true
+    "--onpolicy", arg_type = Bool, default = true,
+    "--dmethod", arg_type = Int64, default = 1
 )
 
 args, cfg = get_config(argtable)
@@ -41,12 +42,11 @@ srand(args["seed"])
 n = Network(nn, nin, nout, args["connectivity"], cfg)
 
 pcfg = Dict()
-pcfg["env"] = args["id"]
 pcfg["n_actions"] = naction
 for k in ["tinput", "toutput", "trest"]
     pcfg[k] = args[k] * 10
 end
-for k in ["ma_rate", "fr", "n_trials", "repeat", "seed"]
+for k in ["ma_rate", "fr", "n_trials", "seed", "id", "onpolicy", "dmethod"]
     pcfg[k] = args[k]
 end
 

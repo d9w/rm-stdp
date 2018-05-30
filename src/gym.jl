@@ -8,8 +8,9 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
     ob = env[:reset]()
     ehigh = min.(env[:observation_space][:high], 20)
     elow = max.(env[:observation_space][:low], 20)
-    total_reward = 0.0
-    reward = 0.0
+    ma_reward = -Inf
+    max_reward = -Inf
+    reward = -Inf
     done = false
     step = 0
     bad_step = 0
@@ -28,7 +29,8 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
         for t in 1:pcfg["toutput"]
             outs = step!(n, train)
             for o in 1:length(outs)
-                if outs[o]
+                # if outs[o]
+                if rand() < 0.3
                     ocount[mod(o, length(ocount))+1] += 1.0
                 end
             end
@@ -43,18 +45,54 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
         else
             bad_step = 0
         end
-        ob, reward, done, _ = env[:step](indmax(ocount)-1)
-        total_reward += reward
+        ob, r, done, _ = env[:step](indmax(ocount)-1)
+        reward = r
+        if pcfg["id"] == "Acrobot-v1"
+            reward = acos(ob[1]) # max angle
+            max_reward = max(max_reward, reward)
+        elseif pcfg["id"] == "CartPole-v0"
+            reward = 1.0 - acos(cos(ob[3])) # 1 - angle
+            if max_reward == -Inf
+                max_reward = 0.0
+            else
+                max_reward += 1.0
+            end
+        elseif pcfg["id"] == "MountainCar-v0"
+            reward = ob[1] # mountain car
+            max_reward = max(max_reward, reward)
+        else
+            max_reward += reward
+        end
+        if ma_reward == -Inf
+            ma_reward = reward
+        else
+            ma_reward = (1.0 - pcfg["ma_rate"]) * ma_reward + pcfg["ma_rate"] * reward
+        end
+        dop = 0.0
+        if ma_reward != 0.0
+            dop = reward / ma_reward
+        end
+        if pcfg["onpolicy"]
+            if pcfg["dmethod"] == 1
+                if dop > 1.0
+                    n.da[1] += (dop - 1.0)
+                end
+            elseif pcfg["dmethod"] == 2
+                n.da[1] *= dop
+            elseif pcfg["dmethod"] == 3
+                n.da[1] = dop
+            end
+        end
         step += 1
-        Logging.info(@sprintf("S: %s %d %d %d %d %0.6f %0.6f",
-                              pcfg["env"], trial, step, maxcount, mincount,
-                              reward, total_reward))
+        Logging.info(@sprintf("S: %s %d %d %d %d %0.6f %0.6f %0.6f %0.6f",
+                              pcfg["id"], trial, step, maxcount, mincount,
+                              max_reward, reward, ma_reward, dop))
         if bad_step > 20
             return -1e4
         end
     end
 
-    total_reward
+    max_reward
 end
 
 function repeat_trials(n::Network, env, pcfg::Dict)
@@ -75,18 +113,16 @@ function repeat_trials(n::Network, env, pcfg::Dict)
         if ma_reward != 0.0
             dop = reward / ma_reward
         end
-        if dop > 1.0
+        if dop > 1.0 && ~pcfg["onpolicy"]
             n.da[1] += (dop - 1.0)
         end
         ma_reward = (1.0 - pcfg["ma_rate"]) * ma_reward + pcfg["ma_rate"] * reward
         Logging.info(@sprintf("T: %s %d %d %0.6f %0.6f %0.6f %e %e",
-                              pcfg["env"], i, seed, reward, ma_reward, dop,
+                              pcfg["id"], i, seed, reward, ma_reward, dop,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
                               sum(abs.(n.weights - weights)) / length(n.weights)))
-        if ~pcfg["repeat"] || dop <= 1.0
-            seed += 1
-        end
+        seed += 1
     end
 
-    mean(x->play_env(n, env, pcfg, pcfg["seed"]+x, pcfg["n_trials"]+x, false), 1:5)
+    mean(x->play_env(n, env, pcfg, pcfg["seed"]+x, pcfg["n_trials"]+x, false), 1:3)
 end
