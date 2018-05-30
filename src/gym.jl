@@ -7,16 +7,16 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
     env[:seed](seed)
     ob = env[:reset]()
     ehigh = min.(env[:observation_space][:high], 20)
-    elow = max.(env[:observation_space][:low], 20)
+    elow = max.(env[:observation_space][:low], -20)
     ma_reward = -Inf
-    max_reward = -Inf
+    max_reward = 0.0
     reward = -Inf
     done = false
     step = 0
     bad_step = 0
 
     while ~done
-        nob = min.(max.(((ob - ehigh) ./ (ehigh - elow)), 0.0), 1.0) .* pcfg["fr"]
+        nob = min.(max.(((ob - elow) ./ (ehigh - elow)), 0.0), 1.0) .* pcfg["fr"]
         ins = rand(n.nin, pcfg["tinput"])
         inputs = falses(n.nin, pcfg["tinput"])
         for i in 1:n.nin
@@ -52,13 +52,9 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
             max_reward = max(max_reward, reward)
         elseif pcfg["id"] == "CartPole-v0"
             reward = 1.0 - acos(cos(ob[3])) # 1 - angle
-            if max_reward == -Inf
-                max_reward = 0.0
-            else
-                max_reward += 1.0
-            end
+            max_reward += 1.0
         elseif pcfg["id"] == "MountainCar-v0"
-            reward = ob[1] # mountain car
+            reward = (ob[1] - elow[1]) / (ehigh[1] - elow[1])  # mountain car
             max_reward = max(max_reward, reward)
         else
             max_reward += reward
