@@ -1,10 +1,12 @@
-../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 50
-../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 100
-../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 150
-../gym.jl --cfg ../cfg/default.yaml --id CartPole-v0 --n_trials 200
-../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 100
-#../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 200
-#../gym.jl --cfg ../cfg/default.yaml --id Acrobot-v1 --n_trials 300
-../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 100
-#../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 200
-#../gym.jl --cfg ../cfg/default.yaml --id MountainCar-v0 --n_trials 300
+../classify.jl --cfg ../cfg/default.yaml --data iris --n_epochs 10
+../classify.jl --cfg ../cfg/default.yaml --data iris --n_epochs 50
+../classify.jl --cfg ../cfg/default.yaml --data iris --n_epochs 10 --supervised false
+../classify.jl --cfg ../cfg/default.yaml --data iris --n_epochs 50 --supervised false
+../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 10
+../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 50
+../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 10 --supervised false
+../classify.jl --cfg ../cfg/default.yaml --data spirals --n_epochs 50 --supervised false
+../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 10
+../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 50
+../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 10 --supervised false
+../classify.jl --cfg ../cfg/default.yaml --data yeast --n_epochs 50 --supervised false

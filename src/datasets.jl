@@ -53,3 +53,17 @@ function get_data(problem::String)
     end
     error("Problem not found")
 end
+
+function train_test_split(X::Array{Float64}, Y::Array{Int64}, trainp::Float64=0.75)
+    train = rand(length(Y)) .< trainp
+    test = .~(train)
+    X[:, train], Y[train], X[:, test], Y[test]
+end
+
+function onehot(Y::Array{Int64})
+    oneh = zeros(Int64, length(Y), length(unique(Y)))
+    for i in eachindex(Y)
+        oneh[i, Y[i]] = 1
+    end
+    oneh
+end

@@ -1,24 +1,24 @@
 vreset: -65.0 # mV
-vinput: 15.0 # mV
+vinput: 16.0 # mV (tuned)
 vthresh: -50.0 # mV
 eleak: -70.0 # mV
 eexc: 0.0 # mV
 einh: -80.0 # mV
-noise: 8.0 # mV
-theta_plus: 0.1 # mV
-refrac_e: 6.0 # ms
-refrac_i: 11.0 # ms
+noise: 5.0 # mV (tuned)
+theta_plus: 0.4 # mV (tuned)
+refrac_e: 15.0 # ms (tuned)
+refrac_i: 4.0 # ms (tuned)
 tme: 20.0 # ms
 tmi: 10.0 # ms
 te: 3.0 # ms
 ti: 5.0 # ms
 ttrace: 20.0 # ms
-ttheta: 780.0 # ms
-tdop: 320.0 # ms
-lr: 7
-target: 0.9
-wrandom: true
-wstart: 0.7
-winh: 0.5
-wmax: 2.1
-mu: 0.4
+ttheta: 470.0 # ms (tuned)
+tdop: 620.0 # ms (tuned)
+lr: 6 # (tuned)
+target: 0.4 # (tuned)
+wrandom: true # (tuned)
+wstart: 0.9 # (tuned)
+winh: 0.4 # (tuned)
+wmax: 3.5 # (tuned)
+mu: 0.1 # (tuned)
