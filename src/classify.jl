@@ -6,6 +6,13 @@ function classify(n::Network, X::Array{Float64}, Y::Array{Int64}, pcfg::Dict,
     labels = zeros(Int64, length(Y))
     oneh = onehot(Y)
     ma_reward = -Inf
+    if ~pcfg["supervised"]
+        if train
+            n.da[1] = 1.0
+        else
+            n.da[1] = 0.0
+        end
+    end
     for sample in eachindex(Y)
         data_in = X[:, sample] * pcfg["fr"]
         ins = rand(n.nin, pcfg["tinput"])
@@ -48,13 +55,7 @@ function classify(n::Network, X::Array{Float64}, Y::Array{Int64}, pcfg::Dict,
         end
     end
 
-    acc = 0.0
-    if pcfg["supervised"]
-        acc = mean(Y .== labels)
-    else
-        acc = randindex(Y, labels)[1]
-    end
-    acc
+    mean(Y .== labels), randindex(Y, labels)[1]
 end
 
 function run_classify(n::Network, X::Array{Float64}, Y::Array{Int64}, pcfg::Dict)
@@ -63,12 +64,14 @@ function run_classify(n::Network, X::Array{Float64}, Y::Array{Int64}, pcfg::Dict
 
     for i in 1:pcfg["n_epochs"]
         weights = copy(n.weights)
-        acc = classify(n, trainx, trainy, pcfg, true)
-        Logging.info(@sprintf("T: %s %d %d %d %0.6f %e %e",
-                              pcfg["data"], pcfg["seed"], pcfg["supervised"], i, acc,
+        acc, rindex = classify(n, trainx, trainy, pcfg, true)
+        Logging.info(@sprintf("T: %s %d %d %d %0.6f %0.6f %e %e",
+                              pcfg["data"], pcfg["seed"], pcfg["supervised"],
+                              i, acc, rindex,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
                               sum(abs.(n.weights - weights)) / length(n.weights)))
     end
 
-    classify(n, testx, testy, pcfg, false)
+    acc, rindex = classify(n, testx, testy, pcfg, false)
+    rindex
 end
