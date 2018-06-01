@@ -96,15 +96,15 @@ end
 
 function repeat_trials(n::Network, env, pcfg::Dict)
     init_weights = copy(n.weights)
-    seed = 0
-    ma_reward = play_env(n, env, pcfg, seed, 0, false)
+    bad_trial = 0
+    ma_reward = play_env(n, env, pcfg, 0, 0, false)
     if ma_reward == -1e4
         return ma_reward
     end
 
     for i in 1:pcfg["n_trials"]
         weights = copy(n.weights)
-        reward = play_env(n, env, pcfg, seed, i, true)
+        reward = play_env(n, env, pcfg, i, i, true)
         if reward == -1e4
             return reward
         end
@@ -116,11 +116,19 @@ function repeat_trials(n::Network, env, pcfg::Dict)
             n.da[1] += (dop - 1.0)
         end
         ma_reward = (1.0 - pcfg["ma_rate"]) * ma_reward + pcfg["ma_rate"] * reward
-        Logging.info(@sprintf("T: %s %d %d %0.6f %0.6f %0.6f %e %e",
-                              pcfg["id"], i, seed, reward, ma_reward, dop,
+        dweight = sum(abs.(n.weights - weights)) / length(n.weights)
+        Logging.info(@sprintf("T: %s %d %0.6f %0.6f %0.6f %e %e",
+                              pcfg["id"], i, reward, ma_reward, dop,
                               sum(abs.(n.weights - init_weights)) / length(n.weights),
-                              sum(abs.(n.weights - weights)) / length(n.weights)))
-        seed += 1
+                              dweight))
+        if dweight < 1e-4
+            bad_trial += 1
+        else
+            bad_trial = 0
+        end
+        if bad_trial > 10
+            return -1e4
+        end
     end
 
     mean(x->play_env(n, env, pcfg, pcfg["seed"]+x, pcfg["n_trials"]+x, false), 1:3)
