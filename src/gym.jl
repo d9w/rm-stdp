@@ -29,8 +29,7 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
         for t in 1:pcfg["toutput"]
             outs = step!(n, train)
             for o in 1:length(outs)
-                # if outs[o]
-                if rand() < 0.3
+                if outs[o]
                     ocount[mod(o, length(ocount))+1] += 1.0
                 end
             end
@@ -86,6 +85,10 @@ function play_env(n::Network, env, pcfg::Dict, seed::Int64, trial::Int64,
         if bad_step > 20
             return -1e4
         end
+    end
+
+    if (pcfg["id"] == "Acrobot-v1") || (pcfg["id"] == "MountainCar-v0")
+        max_reward = max_reward - step
     end
 
     max_reward
